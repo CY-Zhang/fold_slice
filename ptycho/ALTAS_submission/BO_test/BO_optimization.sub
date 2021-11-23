@@ -1,0 +1,53 @@
+#!/bin/bash
+#SBATCH --job-name=test_job            # Job name
+#SBATCH --mail-type=END,FAIL           # Mail events (NONE, BEGIN, END, FAIL, ALL)
+#SBATCH --mail-user=cz489@cornell.edu  # Where to send mail
+#SBATCH --nodes=1                      # number of nodes requested
+#SBATCH --ntasks=10                     # number of tasks to run in parallel
+#SBATCH --cpus-per-task=4             # number of CPUs required for each task
+#SBATCH --gres=gpu:1                   # number of GPUs required
+#SBATCH --time=24:00:00                # Time limit hrs:min:sec
+#SBATCH --output=job_%j.log            # Standard output and error log
+
+pwd; hostname; date
+
+module load matlab/R2021a
+module load cuda/11.5
+
+EXEPATH='/home/fs01/cz489/fold_slice/ptycho/'
+PARFILELIST="/home/fs01/cz489/ptychography/jobs/mixed_state_parallel_example/parameter_MoS2_1.txt \
+	/home/fs01/cz489/ptychography/jobs/mixed_state_parallel_example/parameter_MoS2_2.txt \
+	/home/fs01/cz489/ptychography/jobs/mixed_state_parallel_example/parameter_MoS2_3.txt \
+	/home/fs01/cz489/ptychography/jobs/mixed_state_parallel_example/parameter_MoS2_4.txt"
+
+# Initialization round
+python initialize.py
+for file in $PARFILELIST;
+do
+	matlab -nodisplay -nosplash -r "cd ~;\
+		cd $EXEPATH;\
+		prepare_data('$file');\
+		run_mixed_states('$file');\
+		exit" &
+done
+python extract_results.py
+
+# Run the oprimization of n parallel jobs for multiple times
+for i in {1..10}
+do
+	echo "Optimization round $i."
+	for file in $PARFILELIST;
+	do
+		echo $file
+		matlab -nodisplay -nosplash -r "cd ~;\
+			cd $EXEPATH;\
+			prepare_data('$file');\
+			run_mixed_states('$file');\
+			exit" &
+	done
+	python BO_prediction.py &
+	wait
+	python extract_result.py
+done
+
+date

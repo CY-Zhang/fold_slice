@@ -1,0 +1,20 @@
+# This line is for extra information about this parameter file
+raw_data /home/fs01/cz489/ptychography/data/rawdata_1x_crop_nopar.mat
+result_dir /home/fs01/cz489/ptychography/jobs/mixed_state_parallel_example/01/
+roi_label 0_Ndp128  					# label used in the final output
+voltage 80  							# voltave in keV
+alpha_max 21.4  						# convergence angle in mrad
+rbf 26  								# size of the bright field disk in px
+defocus -500  							# defocus in Angstrom
+Nprobe 5  								# Number of probe modes
+N_scan_x 60  							# number of raster points along x
+N_scan_y 60  							# number of raster points along y
+scan_step_size 0.85  					# scan step size in Angstrom
+Niter 100  							# Number of iterations
+Niter_save_results 100  				# Number of iterations for each result saving
+ADU 151  								# Conversion between intensity counts and number of electrons, electron = intensity / ADU
+rot_ang 30  							# Rotation angle in CBED
+CBED_size 128
+extra_print_info MoS2  					# Extra info to be used for the saving filename
+scan_number 1 							# Index of the result directory
+gpu_id 1 								# ID of GPU to run the code
