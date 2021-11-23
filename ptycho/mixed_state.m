@@ -1,7 +1,7 @@
-clear variables
-addpath(strcat(pwd,'/utils/'))
-addpath('/home/chenyu/Desktop/git/fold_slice/')
-addpath(core.find_base_package)
+% clear variables
+% addpath('/home/chenyu/Desktop/git/fold_slice/ptycho/utils/')
+% addpath('/home/chenyu/Desktop/git/fold_slice/')
+% addpath(core.find_base_package)
 
 %%%%%%%%%%%%%%%%%%%% data parameters %%%%%%%%%%%%%%%%%%%%
 base_path = 'BO_tests/';

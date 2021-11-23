@@ -3,7 +3,7 @@ addpath(strcat(pwd,'/utils/'))
 addpath(core.find_base_package)
 
 %%%%%%%%%%%%%%%%%%%% data parameters %%%%%%%%%%%%%%%%%%%%
-base_path = '/home/beams2/YJIANG/ptychography/electron/PrScO3/science/';
+base_path = 'BO_tests/'; 
 roi_label = '0_Ndp256';
 scan_number = 1;
 scan_string_format = '%01d';
