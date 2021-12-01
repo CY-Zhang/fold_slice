@@ -1,0 +1,5 @@
+raw_data /home/fs01/cz489/ptychography/data/rawdata_1x_crop_nopar.mat
+result_path /home/fs01/cz489/ptychography/jobs/mixed_state_parallel_example/results/
+njob 8
+alpha_max 21.4 1.0
+defocus -500 100
