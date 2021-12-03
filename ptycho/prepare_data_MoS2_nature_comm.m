@@ -6,10 +6,20 @@
 % different folder from fold_slice 
 
 %% Step 2: load data
-data_dir = 'BO_tests/'; %change this
-load(strcat(data_dir,'rawdata_1x_crop.mat'))
+load("parameter.mat");  % load the struct with parameters
+% data_dir = 'BO_tests/'; %change this
+data_dir = par.data_dir;
+% load(strcat(data_dir,'rawdata_1x_crop.mat'))
+load(strcat(data_dir, par.file_name));
 
 %% Step 3: go back to .../fold_slice/ptycho and pre-process data
+% load the parameters in case it is not saved in the raw data
+df = par.defocus;
+voltage = par.voltage;
+rbf = par.rbf;
+ADU = par.ADU;
+alpha0 = par.alpha_max;
+
 addpath(strcat(pwd,'/utils_electron/'))
 Np_p = [128,128]; % size of diffraction patterns used during reconstruction. can also pad to 256
 % pad cbed
@@ -32,7 +42,8 @@ dk=alpha0/1e3/rbf/lambda; %%% PtychoShelves script needs this %%%
 scan_number = 1; %Ptychoshelves needs
 save_dir = strcat(data_dir,num2str(scan_number),'/');
 mkdir(save_dir)
-roi_label = '0_Ndp128';
+% roi_label = '0_Ndp128';
+roi_label = par.roi_label;
 saveName = strcat('data_roi',roi_label,'_dp.hdf5');
 h5create(strcat(save_dir,saveName), '/dp', size(dp),'ChunkSize',[size(dp,1), size(dp,2), 1],'Deflate',4)
 h5write(strcat(save_dir,saveName), '/dp', dp)

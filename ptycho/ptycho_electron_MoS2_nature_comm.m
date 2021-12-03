@@ -1,35 +1,48 @@
 clear variables
 addpath(strcat(pwd,'/utils/'))
 addpath('/home/chenyu/Desktop/git/fold_slice/')
+load("parameter.mat");
 addpath(core.find_base_package)
 
 %%%%%%%%%%%%%%%%%%%% data parameters %%%%%%%%%%%%%%%%%%%%
-base_path = 'BO_tests/';
-roi_label = '0_Ndp128';
+% base_path = 'BO_tests/';
+base_path = par.data_dir;
+roi_label = par.roi_label;
+% roi_label = '0_Ndp128';
 scan_number = 1;
 scan_string_format = '%01d';
 Ndpx = 128;  % size of cbed
-alpha0 = 21.4; % semi-convergence angle (mrad)
-rbf = 26; % radius of the BF disk in cbed. Can be used to calculate dk
+alpha0 = par.alpha_max;
+% alpha0 = 21.4; % semi-convergence angle (mrad)
+rbf = par.rbf;
+% rbf = 26; % radius of the BF disk in cbed. Can be used to calculate dk
 %dk = 0.0197; % pixel size in cbed (1/A). Should be calibrated as accurate as possible
-voltage = 80;
-rot_ang = 30; %angle between cbed and scan coord.
-
-scan_step_size = 0.85; %angstrom
-N_scan_y = 60; %number of scan points
-N_scan_x = 60;
+voltage = par.voltage;
+% voltage = 80;
+rot_ang = par.rot_ang;
+% rot_ang = 30; %angle between cbed and scan coord.
+scan_step_size = par.scan_step_size;
+% scan_step_size = 0.85; %angstrom
+N_scan_y = par.N_scan_y;
+N_scan_x = par.N_scan_x;
+% N_scan_y = 60; %number of scan points
+% N_scan_x = 60;
 %%%%%%%%%%%%%%%%%%%% reconstruction parameters %%%%%%%%%%%%%%%%%%%%
 gpu_id = 1;
-Niter = 1000;
-Niter_save_results = 100;
+Niter = par.Niter;
+% Niter = 1000;
+Niter_save_results = par.Niter_save_results;
+% Niter_save_results = 100;
 Niter_plot_results = 50;
 
-Nprobe = 5; % # of probe modes
+Nprobe = par.Nprobe;
+% Nprobe = 5; % # of probe modes
 variable_probe_modes = 0; % # of modes for variable probe correction
 grouping = 120; % group size. small -> better convergence but longer time/iteration
 N_pos_corr = 0; % iteration number to start position correction. inf means no position correction
 %initial_probe_file = 'D:\\Ptychography\\Data\\MoS2_NatComm\\1\\init_probe.mat';
-initial_probe_file = 'BO_tests/1/init_probe.mat';
+initial_probe_file = strcat(par.data_dir, '1/init_probe.mat');
+% initial_probe_file = 'BO_tests/1/init_probe.mat';
 
 %% %%%%%%%%%%%%%%%%%% initialize data parameters %%%%%%%%%%%%%%%%%%%%
 p = struct();
@@ -140,8 +153,10 @@ p.   initial_iterate_object_file{1} = '';                   %  use this mat-file
 
 % Initial iterate probe
 p.   model_probe = false;                                   % Use model probe, if false load it from file 
-p.   model.probe_alpha_max = 21.4;                          % Modal STEM probe's aperture size
-p.   model.probe_df = -500;                                 % Modal STEM probe's defocus
+p.   model.probe_alpha_max = par.alpha_max;
+% p.   model.probe_alpha_max = 21.4;                          % Modal STEM probe's aperture size
+p.   model.probe_df = par.defocus;
+% p.   model.probe_df = -500;                                 % Modal STEM probe's defocus
 p.   model.probe_c3 = 0;                                    % Modal STEM probe's third-order spherical aberration in angstrom (optional)
 p.   model.probe_c5 = 0;                                    % Modal STEM probe's fifth-order spherical aberration in angstrom (optional)
 p.   model.probe_c7 = 0;                                    % Modal STEM probe's seventh-order spherical aberration in angstrom (optional)
@@ -298,7 +313,8 @@ eng.apply_tilted_plane_correction = ''; % if any(p.sample_rotation_angles([1,2])
 eng.plot_results_every = Niter_plot_results;
 eng.save_results_every = Niter_save_results;
 eng.save_images ={'obj_ph','probe_mag','probe'};
-eng.extraPrintInfo = strcat('MoS2');
+eng.extraPrintInfo = par.extra_print_info;
+% eng.extraPrintInfo = strcat('MoS2');
 
 resultDir = strcat(p.base_path,sprintf(p.scan.format, p.scan_number),'/roi',p.scan.roi_label,'/');
 [eng.fout, p.suffix] = generateResultDir(eng, resultDir);

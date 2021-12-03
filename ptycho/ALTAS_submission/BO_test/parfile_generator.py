@@ -19,8 +19,8 @@ class parfile():
         'N_scan_x': '60',
         'N_scan_y': '60',
         'scan_step_size': '0.85',
-        'Niter': '100',
-        'Niter_save_results': '100',
+        'Niter': '500',
+        'Niter_save_results': '200',
         'ADU': '151',
         'rot_ang': '30',
         'CBED_size': '128',
@@ -37,11 +37,14 @@ class parfile():
         path: string, full path of the new parameter file to be saved, suffix included.
         description: string, description line of the parameter file.
         '''
+        # print(self.par_dict)
         with open(path, 'w') as f:
             f.write(description)
-            for item in self.par_dict.items():
-                output_str = item[0] + ' '+ item[1] + '\n'
-            f.write(output_str)
+            f.write('\n')
+            for item in self.par_dict:
+                output_str = str(item) + ' '+ str(self.par_dict[item])
+                f.write(output_str)
+                f.write('\n')
         f.close()
         return
 

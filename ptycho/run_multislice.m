@@ -6,7 +6,7 @@ function run_multislice(parfile)
     %%%%%%%%%%%%%%%%%%%% data parameters %%%%%%%%%%%%%%%%%%%%
     base_path = par.result_dir; 
     roi_label = par.roi_label;
-    scan_number = 1;
+    scan_number = par.scan_number;
     scan_string_format = '%01d';
     Ndpx = par.CBED_size;  % size of cbed
     alpha0 = par.alpha_max; % semi-convergence angle (mrad)
@@ -28,7 +28,7 @@ function run_multislice(parfile)
     Nlayers = par.Nlayers; % # of slices for multi-slice, 1 for single-slice
     delta_z = thickness / Nlayers;
     
-    initial_probe_file = fullfile(par.result_dir,'/1/init_probe.mat');
+    initial_probe_file = fullfile(par.result_dir, num2str(scan_number), '/init_probe.mat');
     
     %% %%%%%%%%%%%%%%%%%% initialize data parameters %%%%%%%%%%%%%%%%%%%%
     p = struct();

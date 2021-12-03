@@ -1,5 +1,5 @@
-raw_data /home/fs01/cz489/ptychography/data/rawdata_1x_crop_nopar.mat
-result_path /home/fs01/cz489/ptychography/jobs/mixed_state_parallel_example/results/
-njob 8
+raw_data /home/chenyu/Desktop/git/fold_slice/ptycho/ALTAS_submission/rawdata_1x_crop_nopar.mat
+result_path /home/chenyu/Desktop/git/fold_slice/ptycho/ALTAS_submission/BO_test/results/
+njob 4
 alpha_max 21.4 1.0
 defocus -500 100

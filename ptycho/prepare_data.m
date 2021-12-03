@@ -36,7 +36,7 @@ function prepare_data(parfile)
     dk=alpha0/1e3/rbf/lambda; %%% PtychoShelves script needs this %%%
     
     %% Step 4: save CBED in a .hdf5 file (needed by Ptychoshelves)
-    scan_number = 1; %Ptychoshelves needs
+    scan_number = par.scan_number; %Ptychoshelves needs
     save_dir = strcat(par.result_dir,num2str(scan_number),'/');
     disp(save_dir);
     mkdir(save_dir)

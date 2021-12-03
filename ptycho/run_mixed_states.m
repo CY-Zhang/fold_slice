@@ -8,7 +8,7 @@ function run_mixed_states(parfile)
     %%%%%%%%%%%%%%%%%%%% data parameters %%%%%%%%%%%%%%%%%%%%
     base_path = par.result_dir;
     roi_label = par.roi_label;
-    scan_number = 1;
+    scan_number = par.scan_number;
     scan_string_format = '%01d';
     Ndpx = par.CBED_size;  % size of cbed
     alpha0 = par.alpha_max; % semi-convergence angle (mrad)
@@ -20,7 +20,7 @@ function run_mixed_states(parfile)
     N_scan_y = par.N_scan_y;
     N_scan_x = par.N_scan_x; %number of scan points
     %%%%%%%%%%%%%%%%%%%% reconstruction parameters %%%%%%%%%%%%%%%%%%%%
-    gpu_id = 1;
+    gpu_id = par.gpu_id;
     Niter = par.Niter;
     Niter_save_results = par.Niter_save_results;
     Niter_plot_results = 50;
@@ -29,7 +29,7 @@ function run_mixed_states(parfile)
     variable_probe_modes = 0; % # of modes for variable probe correction
     grouping = 120; % group size. small -> better convergence but longer time/iteration
     N_pos_corr = 0; % iteration number to start position correction. inf means no position correction
-    initial_probe_file = strcat(par.result_dir, '1/init_probe.mat');
+    initial_probe_file = strcat(par.result_dir, num2str(scan_number), '/init_probe.mat');
     
     %% %%%%%%%%%%%%%%%%%% initialize data parameters %%%%%%%%%%%%%%%%%%%%
     p = struct();
