@@ -9,14 +9,18 @@ import shutil
 # TODO: check if the results folders exist, remove them to avoid errors if they exist.
 # TODO: change the format of setup files to also include the parameters that are fixed, and read the values in class parfile.
 # TODO: also prepare the slurm script using this python script, then run the .sub file with initialized files.
+# TODO: add another paramter in the setup.txt to change the general job name.
+# TODO: add SOBO/MOBO selection to parameter file.
+
 # ALTAS cluster requires the latest pytorch to use the A100 GPUs, install latest pytorch using:
-#  pip3 install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+# pip3 install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 
 def main(setup_file: str):
     '''
     data_file: string, .mat file with the 4D array name as 'cbed'.
     npar: integer, number of parameter jobs to be submitted.
     '''
+    option_mobo = True
     # read the job setups
     with open(setup_file) as f:
         lines = f.readlines()
@@ -31,7 +35,10 @@ def main(setup_file: str):
 
     # save empty train_x and train_y files
     train_x = np.zeros([1, len(lines) - 3])
-    train_y = np.zeros([1])
+    if option_mobo:
+        train_y = np.expand_dims(np.zeros([2]), axis = 0)
+    else:
+        train_y = np.zeros([1])
     np.save(result_path + 'train_X.npy', train_x)
     np.save(result_path + 'train_Y.npy', train_y)
 
