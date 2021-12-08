@@ -7,7 +7,6 @@ from botorch.optim import optimize_acqf
 from botorch.acquisition import UpperConfidenceBound
 from botorch.models.transforms.outcome import Standardize
 from botorch.acquisition.monte_carlo import qUpperConfidenceBound
-from botorch.utils.transforms import unnormalize
 
 import time
 import numpy as np
@@ -15,7 +14,6 @@ import os
 from parfile_generator import parfile
 import sys
 
-#TODO: figure out a better way to create multiple acuqisition points, the current way often create very close points.
 def main(setup_file: str, round: int):
 
     # try to read the setup file
@@ -92,19 +90,19 @@ def predict_next(train_x, train_y, n_predict, bounds):
     min_stdv = 1e-08)
     # TODO: figure out how to make transformer work with multiple candidate outputs
     gp = SingleTaskGP(train_x, train_y, outcome_transform = outcome_transformer)
+
     mll = ExactMarginalLogLikelihood(gp.likelihood, gp)
     fit_gpytorch_model(mll)
 
-    # TODO: change beta of UCB into a variable, and 2 might be too much for parameter tuning.
-    UCB = UpperConfidenceBound(gp, beta = 2)
+    UCB = UpperConfidenceBound(gp, beta = 0.1)
     # sampler = SobolQMCNormalSampler(1024)
     # qUCB = qUpperConfidenceBound(gp, 2, sampler)
     candidate, _ = optimize_acqf(
         UCB, bounds=torch.stack([torch.zeros(train_x.shape[1], device = device), torch.ones(train_x.shape[1], device = device)]), 
-        q = 1, 
-        num_restarts=n_predict, raw_samples=20, 
+        q = 1, num_restarts=n_predict, raw_samples=20, return_best_only=False,
     )
-    new_x =  unnormalize(candidate.detach(), bounds=bounds)
+    new_x = candidate.detach()
+    new_x = new_x * (bounds[1] - bounds[0]) + bounds[0]
     print(new_x)
     return new_x.squeeze().cpu().detach().numpy()
 
@@ -116,5 +114,5 @@ def check_ready(n_thread: int):
     return True
 
 if __name__ == "__main__":
-    # main(sys.argv[1], sys.argv[2])
-    main('setup.txt', 0) # for debug use
+    main(sys.argv[1], sys.argv[2])
+    # main('setup.txt', 0) # for debug use

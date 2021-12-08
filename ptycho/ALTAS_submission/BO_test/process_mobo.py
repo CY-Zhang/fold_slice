@@ -95,7 +95,7 @@ def predict_next(train_x, train_y, n_predict, bounds):
         fit_gpytorch_model(mll)
 
         # TODO: change beta of UCB into a variable, and 2 might be too much for parameter tuning.
-        UCB = UpperConfidenceBound(gp, beta = 2)
+        UCB = UpperConfidenceBound(gp, beta = 0.1)
         # sampler = SobolQMCNormalSampler(1024)
         # qUCB = qUpperConfidenceBound(gp, 2, sampler)
         candidate, _ = optimize_acqf(

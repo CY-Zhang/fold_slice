@@ -38,7 +38,7 @@ def main(setup_file: str, thread_idx: int):
         angle = 21.4
 
     # TODO: check the format of new_y, might be tuple instead of list now.
-    new_y = get_train_Y(thread_path, angle)
+    new_y = np.array(get_train_Y(thread_path, angle))
 
     # try to open and edit the train_X and trin_Y file
     print(result_path + 'train_X.npy')
@@ -53,14 +53,14 @@ def main(setup_file: str, thread_idx: int):
     # TODO: could get error if one of the x matrices has only 1 row.
     train_x = np.concatenate((train_x, [new_x]), axis = 0)
     train_y = np.load(result_path + 'train_Y.npy')
-    train_y = np.concatenate((train_y, np.array([new_y])), axis = 0)
+    train_y = np.concatenate((train_y, [new_y]), axis = 0)
     np.save(result_path + 'train_X.npy', train_x)
     np.save(result_path + 'train_Y.npy', train_y)
 
     # copy the final phase of the object and save the parameters in the filename
     filename = ""
     n_iter = 100
-    image_path = thread_path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_mm/obj_phase_roi/'+ 'obj_phase_roi_Niter' + str(n_iter) + '.tiff'
+    image_path = thread_path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/obj_phase_roi/'+ 'obj_phase_roi_Niter' + str(n_iter) + '.tiff'
     for i in par_dict:
         filename += (i + '_' + "{:.3f}".format(float(par_dict[i]))+'_')
     filename += 'error_'+ "{:.4f}".format(new_y[0])
@@ -100,36 +100,43 @@ def get_train_Y(path, angle):
     n_iter = 100
     # TODO: add paramter to determine how many objectives to return.
     # TODO: automatically read n_iter from the parameter setup.
+    # TODO: automatically determines the path to read the tif file, the 'MLs_L1_p5_g120_pc0_scale...' part, on cluster, it has updW100 before mm, maybe related to how often the probe positions are updated?
     recon_error = get_recon_error(path, n_iter)
-
+    # TODO: calculate the wavelength from voltage.
     k_px = angle / 1000 / 26 / (4.18/100)
     r_px = 1 / k_px / 128
-    image_path = path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_mm/obj_phase_roi/'
+    image_path = path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/obj_phase_roi/'
     image = np.array(Image.open(image_path + 'obj_phase_roi_Niter' + str(n_iter) + '.tiff'))
     if image.shape[0] % 2 != 0:
             image = image[:image.shape[0]//2*2,:]
+    # Crop 10% edge part to remove random noise
+    height, width = image.shape
+    image = image[height//10:height//10*9, width//10:width//10*9]
     input1 = image[::2]
     input2 = image[1::2]
+    # for now, do not calibrate with pixel size, i.e. don't use d = r_px when calculating the frequency.
     freq = np.fft.fftfreq(int(len(input1) * np.sqrt(2)), d = r_px)
-    idx = compute_frc_score(input1, input2)
+    idx = compute_frc_score(input1, input2, bin_width = 2, threshold = 0.143)
     return -np.log(recon_error), freq[idx]
 
 def get_recon_error(path, n_iter):
-    final_path = path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_mm/'
+    final_path = path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/'
     data = sio.loadmat(final_path + 'Niter' + str(n_iter) + '.mat' )
     error = data['outputs']['fourier_error_out']
     return error[0][0][-1][0]
 
-def compute_frc_score(image_1, image_2) -> int:
-    frc, frc_bins = compute_frc(image_1, image_2)
-    i = 0
-    while i < len(frc):
+def compute_frc_score(image_1, image_2, bin_width, threshold) -> int:
+    frc, frc_bins = compute_frc(image_1, image_2, bin_width = bin_width)
+    i = len(frc) - 1
+    while i > 0:
         if np.isnan(frc[i]):
-            return 0
-        if frc[i] < 0.143:
+            i -= 1
+            continue
+        if frc[i] > threshold:
             break
-        i += 1
-    return int(frc_bins[i]) # returns the distance from center in pixels
+        i -= 1
+    
+    return int(frc_bins[i])
 
 def compute_frc(
         image_1: np.ndarray,
@@ -184,5 +191,5 @@ def compute_frc(
     return density, bin_edges
 
 if __name__ == "__main__":
-    # main(sys.argv[1], sys.argv[2])
-    main('setup.txt', 0)
+    main(sys.argv[1], sys.argv[2])
+    # main('setup.txt', 0)
