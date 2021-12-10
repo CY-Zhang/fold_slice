@@ -25,7 +25,7 @@ function run_multislice(parfile)
     
     Nprobe = par.Nprobe; % # of probe modes
     thickness = par.thickness; % sample thickness in angstrom
-    Nlayers = par.Nlayers; % # of slices for multi-slice, 1 for single-slice
+    Nlayers = round(par.Nlayers); % # of slices for multi-slice, 1 for single-slice
     delta_z = thickness / Nlayers;
     
     initial_probe_file = fullfile(par.result_dir, num2str(scan_number), '/init_probe.mat');

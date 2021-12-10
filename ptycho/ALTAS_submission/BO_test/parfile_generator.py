@@ -1,5 +1,5 @@
 class parfile():
-    def __init__(self, option, datafile, savepath) -> None:
+    def __init__(self, savepath, setup_file) -> None:
         '''
         Initialize a parfile class to edit and save parameter files.
         Inputs:
@@ -7,30 +7,19 @@ class parfile():
         datafile: full path to the .mat rawdata.
         savepath: folder to save the results.
         '''
-        self.option = option
-        self.par_dict = {'raw_data': datafile,
+        self.par_dict = {
         'result_dir': savepath,
-        'roi_label': '0_Ndp128',
-        'voltage': '80',
-        'alpha_max': '21.4',
-        'rbf': '26',
-        'defocus': '-500',
-        'Nprobe': '5',
-        'N_scan_x': '60',
-        'N_scan_y': '60',
-        'scan_step_size': '0.85',
-        'Niter': '500',
-        'Niter_save_results': '200',
-        'ADU': '151',
-        'rot_ang': '30',
-        'CBED_size': '128',
-        'extra_print_info': 'MoS2',
-        'scan_number': '1',
-        'gpu_id': '1',
-        'thickness' : '210',
-        'Nlayer' : '21'}
+        }
+        with open(setup_file) as f:
+            lines = f.readlines()
+            f.close()
+        data_file = lines[0].split(' ')[1][:-1]
+        self.par_dict['raw_data'] = data_file
+        for i in range(4, len(lines)):
+            par = lines[i].split(' ')
+            self.par_dict[par[0]] = par[1][:-1]
 
-    def save_file(self, path, description) -> None:
+    def save_file(self, path: str, description: str) -> None:
         '''
         Function that save a new parameter file to the desired path.
         Input:
@@ -48,7 +37,7 @@ class parfile():
         f.close()
         return
 
-    def modify_parameter(self, par_name, value) -> None:
+    def modify_parameter(self, par_name: str, value: str) -> None:
         '''
         Function that modifies a single parameter.
         '''

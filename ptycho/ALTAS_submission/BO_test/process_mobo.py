@@ -31,18 +31,23 @@ def main(setup_file: str, round: int):
 
     lines = f.readlines()
     f.close()
-    data_file = lines[0].split(' ')[1][:-1]
     result_path = lines[1].split(' ')[1][:-1]
-    n_thread = int(lines[2].split(' ')[1][:-1]) - 1
+    method = lines[2].split(' ')[1][:-1]
+    njobs = int(lines[3].split(' ')[1][:-1]) - 1
+    option_mobo = True if method == 'mobo' else False
     par_dict = {}
-    for i in range(3, len(lines)):
+    count = 0  # counter to count the number of varying parameters.
+    for i in range(4, len(lines)):
         par = lines[i].split(' ')
-        par_dict[par[0]] = [float(par[1]), float(par[2][:-1])]
+        if len(par) == 3:
+            count += 1
+            par_dict[par[0]] = [float(par[1]), float(par[2][:-1])]
+
     print("Setting file loaded by BO thread.\n")
 
     # check whether the current batch is finished
     while True:
-        if check_ready(n_thread):
+        if check_ready(njobs):
             break
         time.sleep(10)
     print("Start optimization round "+ str(round) + '.\n')
@@ -59,11 +64,13 @@ def main(setup_file: str, round: int):
     for i in par_dict:
         bounds[0].append(par_dict[i][0] - par_dict[i][1])
         bounds[1].append(par_dict[i][0] + par_dict[i][1])
-    new_x = predict_next(train_x, train_y, n_thread, bounds)
+    new_x = predict_next(train_x, train_y, njobs, bounds)
 
     # save new jobs from the new_x predicted by BO.
-    for i in range(n_thread):
-        file = parfile(1, data_file, result_path + 'thread_' + str(i) + '/') # initialize for each loop with different saving path
+    file = parfile(result_path, setup_file)
+    for i in range(njobs):
+        thread_path = result_path + 'thread_' + str(i) + '/'
+        file.par_dict['result_dir'] = thread_path
         # create pairs of parameter files with random parameters
         idx = 0
         for par in par_dict:
@@ -84,6 +91,7 @@ def predict_next(train_x, train_y, n_predict, bounds):
     print(train_x.shape)
 
     if len(train_y.shape) == 1: # case of single objective
+        # TODO: move single-objective prediction to a separate function, and implement multi-batch.
         train_y = torch.tensor(train_y).unsqueeze(-1)
         outcome_transformer = Standardize( m = 1,
         batch_shape = torch.Size([]),
