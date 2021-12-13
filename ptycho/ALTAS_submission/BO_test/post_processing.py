@@ -31,33 +31,39 @@ def main(setup_file: str, thread_idx: int):
         if len(par) == 3:
             par_dict[par[0]] = 0
 
-    # compute the new train_X and train_Y
+    # try to open and edit the train_X and trin_Y file
+    while True:
+        try:
+            train_x = np.load(result_path + 'train_X.npy')
+            train_y = np.load(result_path + 'train_Y.npy')
+            break
+        except IOError:
+            time.sleep(1)
+
+    # check if the output file exist, if not, the reconstruction failed, remove the files, modify the input, then go back and run again. Keep next parameter in place, so that the BO process won't start.
     thread_path = result_path + 'thread_' + str(thread_idx) + '/'
+    image_path = thread_path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/obj_phase_roi/'+ 'obj_phase_roi_Niter' + str(n_iter) + '.tiff'
+    if not os.path.exists(image_path):
+    # call BO to give a new parameter, if train_x is empty, create a random one.
+        pass
+
+
+    # compute the new train_X and train_Y
+    
     par_dict = get_train_X(par_dict, old_file)
     new_x = np.array([float(par_dict[i]) for i in par_dict])
     angle = get_conv_angle(old_file)
     new_y = get_train_Y(thread_path, angle, n_iter, option_mobo)
 
-    # try to open and edit the train_X and trin_Y file
-    print(result_path + 'train_X.npy')
-    while True:
-        try:
-            train_x = np.load(result_path + 'train_X.npy')
-            break
-        except IOError:
-            time.sleep(1)
-
     # concatenate par_x into train_x, then replace par_x with par_x_next
     # TODO: could get error if one of the x matrices has only 1 row.
     train_x = np.concatenate((train_x, [new_x]), axis = 0)
-    train_y = np.load(result_path + 'train_Y.npy')
     train_y = np.concatenate((train_y, [new_y]), axis = 0)
     np.save(result_path + 'train_X.npy', train_x)
     np.save(result_path + 'train_Y.npy', train_y)
 
     # copy the final phase of the object and save the parameters in the filename
     filename = ""
-    image_path = thread_path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/obj_phase_roi/'+ 'obj_phase_roi_Niter' + str(n_iter) + '.tiff'
     for i in par_dict:
         filename += (i + '_' + "{:.3f}".format(float(par_dict[i]))+'_')
     if option_mobo:
