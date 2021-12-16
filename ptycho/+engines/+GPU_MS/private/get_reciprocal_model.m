@@ -215,15 +215,20 @@ function [aPsi2, cache, self] = get_linear_correction_model(self,par,cache,aPsi2
                 aPsi2 = aPsi2(cache.fftshift_idx{:},:);
             end
 
-            % apply blur correction 
+             % apply blur correction  change to Gaussian by ZC
             if self.diff_pattern_blur > 0
-                % generate blurring kernel 
-                x = [-1, 0,-1]/self.diff_pattern_blur;
-                [X,Y] = meshgrid(x,x);
-                blur_kernel = exp( -(X.^2 + Y.^2) );
-                blur_kernel  = blur_kernel  / math.sum2( blur_kernel ); 
+                blur_kernel = fspecial('gaussian',round(self.diff_pattern_blur) *10+1,self.diff_pattern_blur);
                 aPsi2 = convn(aPsi2, blur_kernel, 'same');  
             end
+            % apply blur correction 
+%             if self.diff_pattern_blur > 0
+%                 % generate blurring kernel 
+%                 x = [-1, 0,-1]/self.diff_pattern_blur;
+%                 [X,Y] = meshgrid(x,x);
+%                 blur_kernel = exp( -(X.^2 + Y.^2) );
+%                 blur_kernel  = blur_kernel  / math.sum2( blur_kernel ); 
+%                 aPsi2 = convn(aPsi2, blur_kernel, 'same');  
+%             end
 
             if isempty(self.modes{1}.ASM_factor)  % is not nearfield
                 aPsi2 = aPsi2(cache.fftshift_idx{:},:);

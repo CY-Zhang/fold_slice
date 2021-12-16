@@ -96,7 +96,6 @@ function [object, object_upd_sum] = update_object(self, object, object_upd_sum, 
     
     % in case of the MLc method take minimum of the LSQ updates from all
     % subsets 
-    
     if is_method(par, 'MLc')
         % preconditioner should be applied on the total sum of all object_upd_sum
         if par.delta_p > 0 % && par.Nlayers == 1
@@ -105,6 +104,7 @@ function [object, object_upd_sum] = update_object(self, object, object_upd_sum, 
             end
         end
     end
+ 
     
     % calculate optimal step, apply at least different step for each object (scan)
     for i = 1:length(g_ind)
@@ -152,8 +152,7 @@ function [object, object_upd_sum] = update_object(self, object, object_upd_sum, 
 %             end
         end
         title('Object update')
-    end
-            
+    end 
     
 end
 

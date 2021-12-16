@@ -418,7 +418,11 @@ function [self, param, p] = load_from_p(param, p)
     end
     
     self.lambda = p.lambda;
-    self.diff_pattern_blur = 0;  % incoherent smoothing 
+    if check_option(p,'diff_pattern_blur')
+        self.diff_pattern_blur=p.diff_pattern_blur;
+    else
+        self.diff_pattern_blur = 0;  % incoherent smoothing 
+    end
     self.modes = []; 
            
     % keep p structure for plotting purposes 

@@ -120,7 +120,8 @@ function [beta_p, beta_o] =  gradient_projection_solver(self,xi,O,P,dO,dP,p_ind,
     beta_p = Ggather(beta_p).*par.beta_LSQ * par.beta_probe  ;
     beta_o = Ggather(beta_o).*par.beta_LSQ * par.beta_object;
 
-
+    beta_o(isnan(beta_o)) = 0;
+    beta_p(isnan(beta_p)) = 0;
      if any(isnan(beta_o)) || any(isnan(beta_p))
          %keyboard
          error('Convergence failed')

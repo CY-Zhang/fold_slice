@@ -203,7 +203,7 @@ function run_multislice(parfile)
     p.   save.save_reconstructions_intermediate = false;        % save final object and probes after each engine
     p.   save.save_reconstructions = false;                      % save reconstructed object and probe when full reconstruction is finished 
     p.   save.output_file = 'h5';                               % data type of reconstruction file; 'h5' or 'mat'
-    
+    p.   diff_pattern_blur = 1;
     %% %%%%%%%%%%%%%%%%%% initialize reconstruction parameters %%%%%%%%%%%%%%%%%%%%
     % --------- GPU engines  -------------   See for more details: Odstrčil M, et al., Optics express. 2018 Feb 5;26(3):3108-23.
     eng = struct();                        % reset settings for this engine

@@ -95,7 +95,7 @@ else
             A(ii,jj) = sum(dot(p2,p1));
         end
     end
-    
+    A(isnan(A)) = 0;
     [evec,eval] = eig(A);
     
     %% sort modes by their contribution
