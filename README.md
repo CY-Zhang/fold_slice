@@ -1,3 +1,9 @@
+# fold_slice with auto parameter tuning
+Customized code for electron ptychography with automatic parameter tuning based on Bayesian optimization by Chenyu Zhang. Currently implemented for Slurm with multiple GPUs.
+12-16-21 Added diffraction pattern blurring option to GPU_MS engine, using implementation by Zhen Chen based on Gaussian blur. Corresponding parameter added to run_multislice. Currently, this option is not added to GPU engine, or run_mixed_state function.
+12-07-21 Single object BO that minimized the average fourier error, and multi-object BO that minimize Fourier error and maximizing Fourier shell correlation (FSC) added to the package. Can select method by modifying the setup file. Tested on altas.cac.cornell.edu cluster with slurm.
+12-03-21 First version of working BO uploaded. Runs single-object BO that minimized Fourier error. Tested on altas.cac.cornell.edu. Requires botorch >= 1.5 and torch >= 1.9 to run.
+
 # fold_slice
 
 This is Yi Jiang's customized code for X-ray/electron ptychography and tomography/laminography.
