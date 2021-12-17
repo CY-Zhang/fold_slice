@@ -76,15 +76,7 @@ function [self, probe, obj_proj, psi] = get_forward_model(self, obj_proj, par, c
             end
             
             % get exitwave after each layer
-%             temp = probe{llp, layer};
-%             temp(isnan(temp)) = 0;
-%             temp(isinf(temp)) = 0;
-%             probe{llp, layer} = temp;
             psi{ll} = probe{llp,layer} .* obj_proj{llo};
-%             temp = psi{ll};
-%             temp(isnan(temp)) = 0;
-%             temp(isinf(temp)) = 0;
-%             psi{ll} = temp;
             %modified by YJ: no need to do another propagation after the
             %last object layer
             if layer < par.Nlayers 

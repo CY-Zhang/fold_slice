@@ -108,12 +108,13 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
 %     end
     
         % estimate forward model, ie wavefront behind the sample 
-        obj_backup = obj_proj;
+        obj_proj_backup = obj_proj;
+        obj_backup = self.object;
         [self, probe, obj_proj, psi] = get_forward_model(self, obj_proj, par,cache, g_ind, p_ind, scan_ids{jj}, layer_ids{jj});
-        temp = probe{1,1};
-        if sum(isnan(temp(:))) >0
-            keyboard;
-        end
+        temp = psi{1,1};
+%         if sum(isnan(temp(:))) >0
+%             keyboard;
+%         end
 %         obj_proj_mean = obj_proj_mean + mean(abs(temp(:)));
         %% load data to GPU 
         modF = get_modulus(self, cache, g_ind,true,jj);
@@ -217,9 +218,9 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
                     probe_update       = 0; m_probe_update = 0;
                     object_update_proj = Gfun(@get_update, chi{ll}, probe{llp,layer});
                 end
-                if sum(isnan(object_update_proj(:))) > 0
-                    keyboard;
-                end
+%                 if sum(isnan(object_update_proj(:))) > 0
+%                     keyboard;
+%                 end
                 % refine single optimal probe update direction (use overlap constraint)
                 if probe_reconstruct || layer > 1
                    [self,m_probe_update, probe_update, cache]  = refine_probe_update(self, obj_proj{llo}, probe_update, chi{ll},layer,ll,p_ind{ll},g_ind, par, cache);
@@ -236,10 +237,10 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
                         object_update_proj,object_upd_sum,layer_ids{jj}(layer),scan_ids{jj},g_ind, par, cache);
                 end
 %                 for i = 1:25
-                    temp = object_upd_sum{1, 1};
-                    if sum(isnan(temp(:))) > 0
-                        keyboard;
-                    end
+%                     temp = object_upd_sum{1, 1};
+%                     if sum(isnan(temp(:))) > 0
+%                         keyboard;
+%                     end
 %                 end
 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -360,12 +361,7 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
 %         
 
    end
-%    disp(obj_proj_mean/size(ind_range,2))
-   obj_mean = 0;
-   for i = 1:25
-       obj_mean = obj_mean + mean(abs(self.object{1,i}(:)));
-   end
-   disp(obj_mean / 25)
+
    if iter == 0
        % apply initial correction for the probe intensity and return
        probe_amp_corr = sqrt(probe_amp_corr(1) / probe_amp_corr(2)); %% calculate ratio between modF^2 and aPsi^2

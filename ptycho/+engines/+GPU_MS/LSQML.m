@@ -71,9 +71,6 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
         ind_range = 1:Nind;
     end
      
-%     if mod(iter, 10) == 0
-%         keyboard;
-%     end
     obj_proj_mean = 0;
    %% apply updated in parallel over sets indices{jj}
    for  jj = ind_range
@@ -108,13 +105,7 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
 %     end
     
         % estimate forward model, ie wavefront behind the sample 
-        obj_proj_backup = obj_proj;
-        obj_backup = self.object;
         [self, probe, obj_proj, psi] = get_forward_model(self, obj_proj, par,cache, g_ind, p_ind, scan_ids{jj}, layer_ids{jj});
-        temp = psi{1,1};
-%         if sum(isnan(temp(:))) >0
-%             keyboard;
-%         end
 %         obj_proj_mean = obj_proj_mean + mean(abs(temp(:)));
         %% load data to GPU 
         modF = get_modulus(self, cache, g_ind,true,jj);
@@ -202,10 +193,6 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
                     % if only single layer is used, reuse obj_proj already
                     % loaded, but avoid storing obj_proj for each layer, rather load it again 
                     obj_proj{llo} = get_views(self.object, obj_proj{llo},layer_ids{jj}(layer),llo, g_ind, cache, scan_ids{jj},[]);
-%                     temp = obj_proj{1,1};
-%                     if sum(isnan(temp(:))) >0
-%                         keyboard;
-%                     end
                 end
 
                 % get update directions for each scan positions 
@@ -218,9 +205,7 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
                     probe_update       = 0; m_probe_update = 0;
                     object_update_proj = Gfun(@get_update, chi{ll}, probe{llp,layer});
                 end
-%                 if sum(isnan(object_update_proj(:))) > 0
-%                     keyboard;
-%                 end
+
                 % refine single optimal probe update direction (use overlap constraint)
                 if probe_reconstruct || layer > 1
                    [self,m_probe_update, probe_update, cache]  = refine_probe_update(self, obj_proj{llo}, probe_update, chi{ll},layer,ll,p_ind{ll},g_ind, par, cache);
@@ -231,17 +216,9 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
 
                 % refine single optimal object update direction (use overlap constraint)
                 if object_reconstruct
-                    object_update_proj_backup = object_update_proj;
-                    object_upd_sum_backup = object_upd_sum;
                     [object_upd_sum,object_update_proj, cache] = refine_object_update(self,  ...
                         object_update_proj,object_upd_sum,layer_ids{jj}(layer),scan_ids{jj},g_ind, par, cache);
                 end
-%                 for i = 1:25
-%                     temp = object_upd_sum{1, 1};
-%                     if sum(isnan(temp(:))) > 0
-%                         keyboard;
-%                     end
-%                 end
 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 %%%%%  calculate the optimal step %%%%%%%%%%%%%%%%%%%%%%
@@ -361,15 +338,6 @@ function [self, cache, fourier_error] =  LSQML(self,par,cache,fourier_error,iter
 %         
 
    end
-%    disp(obj_proj_mean/size(ind_range,2))
-%    obj_mean = 0;
-%    for i = 1:25
-%        obj_mean = obj_mean + mean(abs(self.object{1,i}(:)));
-%    end
-%    if iter == 19
-%        keyboard;
-%    end
-   disp(max(obj_proj{1,1}(:)));
    if iter == 0
        % apply initial correction for the probe intensity and return
        probe_amp_corr = sqrt(probe_amp_corr(1) / probe_amp_corr(2)); %% calculate ratio between modF^2 and aPsi^2
