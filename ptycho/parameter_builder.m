@@ -10,7 +10,7 @@ function par = parameter_builder(parfile)
         end
     %     disp(tline);
         temp = split(tline);
-        if size(temp, 1) == 1
+        if size(temp, 1) == 1 || temp{1,1}(1) == '#'
             continue
         end
         if ~isnan(str2double(temp{2,1}))

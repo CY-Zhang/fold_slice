@@ -13,7 +13,7 @@ Nprobe 5
 N_scan_x 60
 N_scan_y 60
 scan_step_size 0.85
-Niter 200
+Niter 50
 Niter_save_results 200
 ADU 151
 extra_print_info MoS2

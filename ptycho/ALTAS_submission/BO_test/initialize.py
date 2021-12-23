@@ -1,17 +1,17 @@
 import sys
 import os
 import numpy as np
-import scipy.io as sio
 from parfile_generator import parfile
 import ptycho_thread_starter
 import shutil
 
-# TODO: check if the results folders exist, remove them to avoid errors if they exist.
-# TODO: change the format of setup files to also include the parameters that are fixed, and read the values in class parfile.
-# TODO: also prepare the slurm script using this python script, then run the .sub file with initialized files.
+# 12/10/21, cz, check if the results folders exist, remove them to avoid errors if they exist.
+# 12/10/21, cz, change the format of setup files to also include the parameters that are fixed, and read the values in class parfile.
 # TODO: add another paramter in the setup.txt to change the general job name. Now the bo_thread.sub is the start point of everything, we need another python script to run the bo_thread.sub, then another .sub to run that python script. Seems like lots of trouble.
-# Done: add SOBO/MOBO selection to parameter file. Finished 12/10/21, cz.
+# 12/10/21, cz, add SOBO/MOBO selection to parameter file.
 # TODO: add another parameter in the setup.txt to determine performing multislice/mixed-state
+# TODO: add more parameters to control the grouping parameter, and determine whether to run from previous results.
+# TODO: add running time to the setup file too.
 
 # ALTAS cluster requires the latest pytorch to use the A100 GPUs, install latest pytorch using:
 # pip3 install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html

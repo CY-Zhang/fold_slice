@@ -10,3 +10,5 @@ ptycho/ALTAS_submission/BO_test/__pycache__/
 *.tiff
 *.hdf5
 *.jpg
+*.dat
+*.asv

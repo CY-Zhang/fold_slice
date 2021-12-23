@@ -1,4 +1,4 @@
-function run_multislice_new(parfile)
+    function run_multislice_new(parfile)
         par = parameter_builder(parfile);
         addpath(strcat(pwd,'/utils/'))
         addpath(core.find_base_package)
@@ -133,14 +133,10 @@ function run_multislice_new(parfile)
         % Initial iterate object, load from previous results if
         % load_results_path is in the parameter file. Use random object and
         % ideal probe otherwise.
-        if isfield(par, 'load_object_path')
+        if isfield(par, 'load_results_path')
             p.model_object = false;
-            p.initial_iterate_object_file{1} = par.load_object_path;
-            if isfield(par, 'load_probe_path')
-                p.initial_probe_file = par.load_probe_path;
-            else
-                p.initial_probe_file = par.load_object_path;
-            end
+            p.initial_iterate_object_file{1} = par.load_results_path;
+            p.initial_probe_file = par.load_results_path;
             p.multiple_layers_obj = true;
         else
             initial_probe_file = fullfile(par.result_dir, num2str(scan_number), '/init_probe.mat');
@@ -256,12 +252,7 @@ function run_multislice_new(parfile)
         end
         
         % regularizations
-        if isfield(par, 'reg_mu')
-            eng.reg_mu = par.reg_mu;                       % Regularization (smooting) constant ( reg_mu = 0 for no regularization)
-        else
-            eng.reg_mu = 0;
-        end
-        
+        eng. reg_mu = 0;                       % Regularization (smooting) constant ( reg_mu = 0 for no regularization)
         eng. delta = 0;                        % press values to zero out of the illumination area in th object, usually 1e-2 is enough 
         eng. positivity_constraint_object = 0; % enforce weak (relaxed) positivity in object, ie O = O*(1-a)+a*|O|, usually a=1e-2 is already enough. Useful in conbination with OPRP or probe_fourier_shift_search  
         
