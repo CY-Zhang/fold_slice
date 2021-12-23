@@ -26,7 +26,6 @@ class parfile():
         path: string, full path of the new parameter file to be saved, suffix included.
         description: string, description line of the parameter file.
         '''
-        # print(self.par_dict)
         with open(path, 'w') as f:
             f.write(description)
             f.write('\n')

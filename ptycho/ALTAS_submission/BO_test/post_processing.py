@@ -1,11 +1,17 @@
-import sys
 import os
+import sys
 import numpy as np
 import scipy.io as sio
 import time
 from PIL import Image
 import shutil
 
+# 12/21/21 added paramter option_mobo to determine how many objectives to return.
+# 12/21/21, cz, automatically determines the path to read the tif file, current scheme only works when there is only one folder under each scan number. Also auto determine the niter part of filename from setup file.
+# 12/23/21, cz, modify the roi_label and scan number part, read them from the setup file instead of hard coded as roi0_Ndp128 and 1.
+
+# TODO: ignore lines in the setup files that starts with #
+# TODO: keep the initial probe and the hdf5 files, could take long to generate the two files again for massive data size.
 def main(setup_file: str, thread_idx: int):
 
     old_file = 'parameter_thread' + str(thread_idx) + '.txt'
@@ -28,6 +34,10 @@ def main(setup_file: str, thread_idx: int):
         par = lines[i].split(' ')
         if par[0] == 'Niter':
             n_iter = int(par[1][:-1])
+        if par[0] == 'roi_label':
+            roi_label = par[1][:-1]
+        if par[0] == 'scan_number':
+            scan_number = par[1][:-1]
         if len(par) == 3:
             par_dict[par[0]] = 0
 
@@ -41,22 +51,16 @@ def main(setup_file: str, thread_idx: int):
             time.sleep(1)
 
     # check if the output file exist, if not, the reconstruction failed, remove the files, modify the input, then go back and run again. Keep next parameter in place, so that the BO process won't start.
-    thread_path = result_path + 'thread_' + str(thread_idx) + '/'
-    # TODO: modify the roi0_Ndp128 part, read it from the parameter file.
-    image_path = thread_path + '1/roi0_Ndp128/'
-    image_path += next(os.walk(image_path))[1][0]
-    # image_path = path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/obj_phase_roi/'
+    thread_path = result_path + 'thread_' + str(thread_idx) + '/' + scan_number + '/roi' + roi_label + '/'
+    image_path = thread_path + next(os.walk(thread_path))[1][0]
     image_file = image_path + '/obj_phase_roi/obj_phase_roi_Niter' + str(n_iter) + '.tiff'
     if not os.path.exists(image_file):
         image_file = image_path + '/obj_phase_roi_sum/obj_phase_roi_sum_Niter' + str(n_iter) + '.tiff'
-    # image_path = thread_path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/obj_phase_roi/'+ 'obj_phase_roi_Niter' + str(n_iter) + '.tiff'
     if not os.path.exists(image_path):
     # call BO to give a new parameter, if train_x is empty, create a random one.
         pass
 
-
     # compute the new train_X and train_Y
-    
     par_dict = get_train_X(par_dict, old_file)
     new_x = np.array([float(par_dict[i]) for i in par_dict])
     angle = get_conv_angle(old_file)
@@ -88,9 +92,8 @@ def main(setup_file: str, thread_idx: int):
         time.sleep(1)
 
     # remove the result path after reading the x and y values
-    # TODO: no need to remove the initial probe and the hdf5 files.
-    shutil.rmtree(thread_path + '1/')
-    shutil.rmtree(thread_path + 'analysis/')
+    shutil.rmtree(result_path + 'thread_' + str(thread_idx) + '/' + scan_number + '/')
+    shutil.rmtree(result_path + 'thread_' + str(thread_idx) + '/analysis/')
 
     # replace parameter files with next batch of parameter files.
     os.replace(newfile, old_file)
@@ -120,16 +123,11 @@ def get_train_X(par_dict, par_file):
     return par_dict
 
 def get_train_Y(path, angle, n_iter, option_mobo):
-    # TODO: add paramter to determine how many objectives to return.
-    # TODO: automatically read n_iter from the parameter setup.
-    # 12/21/21, cz, automatically determines the path to read the tif file, the 'MLs_L1_p5_g120_pc0_scale...' part, on cluster, it has updW100 before mm, maybe related to how often the probe positions are updated?
     recon_error = get_recon_error(path, n_iter)
     # TODO: calculate the wavelength from voltage.
     k_px = angle / 1000 / 26 / (4.18/100)
     r_px = 1 / k_px / 128
-    path = path + '1/roi0_Ndp128/'
     image_path = path + next(os.walk(path))[1][0]
-    # image_path = path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/obj_phase_roi/'
     image_file = image_path + '/obj_phase_roi/obj_phase_roi_Niter' + str(n_iter) + '.tiff'
     if not os.path.exists(image_file):
         image_file = image_path + '/obj_phase_roi_sum/obj_phase_roi_sum_Niter' + str(n_iter) + '.tiff'
@@ -152,9 +150,7 @@ def get_train_Y(path, angle, n_iter, option_mobo):
         return np.array([ -np.log(recon_error), sum(np.abs(frc[~np.isnan(frc)]))/sum(~np.isnan(frc))])
 
 def get_recon_error(path, n_iter):
-    path = path + '1/roi0_Ndp128/'
     final_path = path + next(os.walk(path))[1][0]
-    # final_path = path + '1/roi0_Ndp128/MLs_L1_p5_g120_pc0_scale_asym_rot_shear_updW100_mm/'
     data = sio.loadmat(final_path + '/Niter' + str(n_iter) + '.mat' )
     error = data['outputs']['fourier_error_out']
     return error[0][0][-1][0]

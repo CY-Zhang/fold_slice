@@ -17,7 +17,12 @@ import os
 from parfile_generator import parfile
 import sys
 
-#TODO: figure out a better way to create multiple acuqisition points, the current way often create very close points.
+# TODO: figure out a better way to create multiple acuqisition points, the current way often create very close points.
+# TODO: move single-objective prediction to a separate function, and implement multi-batch.
+# TODO: figure out how to make transformer work with multiple candidate outputs
+# TODO: change beta of UCB into a variable, and 2 might be too much for parameter tuning.
+# TODO: think about what to use as the reference point for MOBO.
+# TODO, low priority: add a variable for the path of the parameter files. Currently, it is hard coded as the same path of the .py script.
 # Python > 3.7.0 and botorch 0.5 are required for the multi_objective functions.
 def main(setup_file: str, round: int):
 
@@ -77,7 +82,6 @@ def main(setup_file: str, round: int):
             val = new_x[i][idx]
             file.modify_parameter(par, val) 
             idx += 1
-        # TODO: add a variable for the path of the parameter files. Currently, it is hard coded as the same path of the .py script.
         parfile_name = 'parameter_thread' + str(i) + '_next.txt'
         file.save_file(parfile_name, '')
     return
@@ -91,18 +95,16 @@ def predict_next(train_x, train_y, n_predict, bounds):
     print(train_x.shape)
 
     if len(train_y.shape) == 1: # case of single objective
-        # TODO: move single-objective prediction to a separate function, and implement multi-batch.
+        
         train_y = torch.tensor(train_y).unsqueeze(-1)
         outcome_transformer = Standardize( m = 1,
         batch_shape = torch.Size([]),
         min_stdv = 1e-08)
 
-        # TODO: figure out how to make transformer work with multiple candidate outputs
         gp = SingleTaskGP(train_x, train_y, outcome_transform = outcome_transformer)
         mll = ExactMarginalLogLikelihood(gp.likelihood, gp)
         fit_gpytorch_model(mll)
 
-        # TODO: change beta of UCB into a variable, and 2 might be too much for parameter tuning.
         UCB = UpperConfidenceBound(gp, beta = 0.1)
         # sampler = SobolQMCNormalSampler(1024)
         # qUCB = qUpperConfidenceBound(gp, 2, sampler)
@@ -128,7 +130,6 @@ def optimize_qehvi_and_get_observation(model, train_y, sampler, n_predict, bound
     RAW_SAMPLES = 1024
     """Optimizes the qEHVI acquisition function, and returns a new candidate and observation."""
     # partition non-dominated space into disjoint rectangles
-    # TODO: think about what to use as the reference point.
     ref_point = torch.tensor(np.zeros(train_y.shape[1]), device = device)
     partitioning = NondominatedPartitioning(ref_point=ref_point, Y=train_y)
     acq_func = qExpectedHypervolumeImprovement(

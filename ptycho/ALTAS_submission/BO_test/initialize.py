@@ -7,19 +7,24 @@ import shutil
 
 # 12/10/21, cz, check if the results folders exist, remove them to avoid errors if they exist.
 # 12/10/21, cz, change the format of setup files to also include the parameters that are fixed, and read the values in class parfile.
-# TODO: add another paramter in the setup.txt to change the general job name. Now the bo_thread.sub is the start point of everything, we need another python script to run the bo_thread.sub, then another .sub to run that python script. Seems like lots of trouble.
 # 12/10/21, cz, add SOBO/MOBO selection to parameter file.
+# 12/22/21, cz add more parameters to control the grouping parameter, and determine whether to run from previous results.
+
 # TODO: add another parameter in the setup.txt to determine performing multislice/mixed-state
-# TODO: add more parameters to control the grouping parameter, and determine whether to run from previous results.
 # TODO: add running time to the setup file too.
+# TODO: add parameters to control probe_search_start.
+# TODO: add job name to setup file and modify corresponding part of the submission file for each thread. Won't be able to change the job name on bo_thread.sub, as that is the entry point of everything.
+# TODO, low priority: randomize the seed for the random number generator when initialize parameters.
+# TODO, low priority: add a variable for the path of the parameter files. Currently, it is hard coded as the same path of the .py script.
+# TODO, low priority: add another paramter in the setup.txt to change the general job name. Now the bo_thread.sub is the start point of everything, we need another python script to run the bo_thread.sub, then another .sub to run that python script. Seems like lots of trouble.
+
 
 # ALTAS cluster requires the latest pytorch to use the A100 GPUs, install latest pytorch using:
 # pip3 install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 
 def main(setup_file: str):
     '''
-    data_file: string, .mat file with the 4D array name as 'cbed'.
-    npar: integer, number of parameter jobs to be submitted.
+    setup_file: str, path to the setup text file which contains all the fixed and tunable parameters.
     '''
     # read the job setups
     with open(setup_file) as f:
@@ -54,11 +59,10 @@ def main(setup_file: str):
         # create pairs of parameter files with random parameters
         count = 0
         for par in par_dict:
-            # TODO: randomize the seed for the random number
             val = par_dict[par][0] + par_dict[par][1] * (np.random.rand() - 0.5) * 2
             file.modify_parameter(par, str(val)) 
             count += 1
-        # TODO: add a variable for the path of the parameter files. Currently, it is hard coded as the same path of the .py script.
+        
         parfile_name = 'parameter_thread' + str(i) + '.txt'
         file.save_file(parfile_name, '')
 
@@ -72,7 +76,7 @@ def main(setup_file: str):
             val = par_dict[par][0] + par_dict[par][1] * (np.random.rand() - 0.5) * 2
             file.modify_parameter(par, str(val))
             count += 1
-        # TODO: add a variable for the path of the parameter files. Currently, it is hard coded as the same path of the .py script.
+        
         parfile_name = 'parameter_thread' + str(i) + '_next.txt'
         file.save_file(parfile_name, '')
 
