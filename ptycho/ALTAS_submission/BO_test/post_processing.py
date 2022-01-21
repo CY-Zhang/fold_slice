@@ -75,13 +75,14 @@ def main(setup_file: str, thread_idx: int):
 
     # copy the final phase of the object and save the parameters in the filename
     filename = ""
-    for i in par_dict:
-        filename += (i + '_' + "{:.3f}".format(float(par_dict[i]))+'_')
     if option_mobo:
         filename += 'error_'+ "{:.4f}".format(new_y[0])
-        filename += '_FSC_' + "{:.4f}".format(new_y[1]) + '.tiff'
+        filename += '_FSC_' + "{:.4f}".format(new_y[1])
     else:
-        filename += 'error_'+ "{:.4f}".format(new_y) + '.tiff'
+        filename += 'error_'+ "{:.4f}".format(new_y)
+    for i in par_dict:
+        filename += ('_' + i + '_' + "{:.3f}".format(float(par_dict[i])))
+    filename += '.tiff'
     shutil.copyfile(image_file, result_path + filename)
 
     # Keep detecting whether the next batch of parameters are ready.
