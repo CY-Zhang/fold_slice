@@ -1,4 +1,4 @@
-    function run_multislice_new(parfile)
+function run_multislice_new(parfile)
         par = parameter_builder(parfile);
         addpath(strcat(pwd,'/utils/'))
         addpath(core.find_base_package)
@@ -133,10 +133,14 @@
         % Initial iterate object, load from previous results if
         % load_results_path is in the parameter file. Use random object and
         % ideal probe otherwise.
-        if isfield(par, 'load_results_path')
+        if isfield(par, 'load_object_path')
             p.model_object = false;
-            p.initial_iterate_object_file{1} = par.load_results_path;
-            p.initial_probe_file = par.load_results_path;
+            p.initial_iterate_object_file{1} = par.load_object_path;
+            if isfield(par, 'load_probe_path')
+                p.initial_probe_file = par.load_probe_path;
+            else
+                p.initial_probe_file = par.load_object_path;
+            end
             p.multiple_layers_obj = true;
         else
             initial_probe_file = fullfile(par.result_dir, num2str(scan_number), '/init_probe.mat');
@@ -225,7 +229,11 @@
         
         % general
         eng. number_iterations = Niter;          % number of iterations for selected method 
-        eng. asize_presolve = [128, 128];      % crop data to "asize_presolve" size to get low resolution estimate that can be used in the next engine as a good initial guess 
+        if isfield(par, 'CBED_crop')
+            eng.asize_presolve = [par.CBED_crop, par.CBED_crop];
+        else
+            eng. asize_presolve = [par.CBED_size, par.CBED_size];      % crop data to "asize_presolve" size to get low resolution estimate that can be used in the next engine as a good initial guess 
+        end
         eng. align_shared_objects = false;     % before merging multiple unshared objects into one shared, the object will be aligned and the probes shifted by the same distance -> use for alignement and shared reconstruction of drifting scans  
         
         eng. method = 'MLs';                   % choose GPU solver: DM, ePIE, hPIE, MLc, Mls, -- recommended are MLc and MLs
@@ -248,11 +256,16 @@
         if isfield(par, 'probe_change_start')
             eng.probe_change_start = par.probe_change_start;
         else
-            eng. probe_change_start = 20;           % Start updating probe at this iteration number
+            eng. probe_change_start = 1;           % Start updating probe at this iteration number
         end
         
         % regularizations
-        eng. reg_mu = 0;                       % Regularization (smooting) constant ( reg_mu = 0 for no regularization)
+        if isfield(par, 'reg_mu')
+            eng.reg_mu = par.reg_mu;                       % Regularization (smooting) constant ( reg_mu = 0 for no regularization)
+        else
+            eng.reg_mu = 0;
+        end
+        
         eng. delta = 0;                        % press values to zero out of the illumination area in th object, usually 1e-2 is enough 
         eng. positivity_constraint_object = 0; % enforce weak (relaxed) positivity in object, ie O = O*(1-a)+a*|O|, usually a=1e-2 is already enough. Useful in conbination with OPRP or probe_fourier_shift_search  
         
@@ -287,7 +300,11 @@
         
         % multilayer extension 
         eng. delta_z = delta_z*ones(Nlayers,1);                     % if not empty, use multilayer ptycho extension , see ML_MS code for example of use, [] == common single layer ptychography , note that delta_z provides only relative propagation distance from the previous layer, ie delta_z can be either positive or negative. If preshift_ML_probe == false, the first layer is defined by position of initial probe plane. It is useful to use eng.momentum for convergence acceleration 
-        eng. regularize_layers = 1;           % multilayer extension: 0<R<<1 -> apply regularization on the reconstructed object layers, 0 == no regularization, 0.01 == weak regularization that will slowly symmetrize information content between layers 
+        if isfield(par, 'regularize_layers')
+            eng.regularize_layers = par.regularize_layers;
+        else
+            eng. regularize_layers = 1;           % multilayer extension: 0<R<<1 -> apply regularization on the reconstructed object layers, 0 == no regularization, 0.01 == weak regularization that will slowly symmetrize information content between layers 
+        end
         eng. preshift_ML_probe = false;       % multilayer extension: if true, assume that the provided probe is reconstructed in center of the sample and the layers are centered around this position 
         eng. layer4pos = [];                  % Added by ZC. speficy which layer is used for position correction ; if empty, then default, ceil(Nlayers/2)
         eng. init_layer_select = [];          % Added by YJ. Select layers in the initial object for pre-processing. If empty (default): use all layers.
