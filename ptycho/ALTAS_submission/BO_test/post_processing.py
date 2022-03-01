@@ -11,7 +11,7 @@ import shutil
 # 12/23/21, cz, modify the roi_label and scan number part, read them from the setup file instead of hard coded as roi0_Ndp128 and 1.
 
 # TODO: ignore lines in the setup files that starts with #
-# TODO: keep the initial probe and the hdf5 files, could take long to generate the two files again for massive data size.
+# TODO: keep the hdf5 files, remove init_probe and the whole folder named roi_label, could take long to generate the two files again for massive data size.
 def main(setup_file: str, thread_idx: int):
 
     old_file = 'parameter_thread' + str(thread_idx) + '.txt'

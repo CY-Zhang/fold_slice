@@ -334,7 +334,12 @@ function run_multislice_new(parfile)
         eng. estimate_NF_distance = inf;       % iteration number from which the engine will: try to estimate the nearfield propagation distance using gradient descent optimization  
         eng. detector_rotation_search = inf;   % iteration number from which the engine will: search for optimal detector rotation, preferably use with option mirror_scan = true , rotation of the detector axis with respect to the sample axis, similar as rotation option in the position refinement geometry model but works also for 0/180deg rotation shared scans 
         eng. detector_scale_search = inf;      % iteration number from which the engine will: refine pixel scale of the detector, can be used to refine propagation distance in ptycho 
-        eng. variable_probe = true;           % Use SVD to account for variable illumination during a single (coupled) scan, see for more details:  Odstrcil, M. et al. Optics express 24.8 (2016): 8360-8369.
+        if isfield(par, 'variable_probe') && strcmp(par.variable_probe,'false')
+            eng.variable_probe = false;
+        else
+            eng.variable_probe = true;
+        end
+%         eng. variable_probe = true;           % Use SVD to account for variable illumination during a single (coupled) scan, see for more details:  Odstrcil, M. et al. Optics express 24.8 (2016): 8360-8369.
         eng. variable_probe_modes = 1;         % OPRP settings , number of SVD modes using to describe the probe evolution. 
         eng. variable_probe_smooth = 0;        % OPRP settings , enforce of smooth evolution of the OPRP modes -> N is order of polynomial fit used for smoothing, 0 == do not apply any smoothing. Smoothing is useful if only a smooth drift is assumed during the ptycho acquisition 
         eng. variable_intensity = false;       % account to changes in probe intensity

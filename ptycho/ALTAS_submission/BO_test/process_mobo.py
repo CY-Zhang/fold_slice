@@ -16,6 +16,7 @@ import numpy as np
 import os
 from parfile_generator import parfile
 import sys
+import random
 
 # TODO: figure out a better way to create multiple acuqisition points, the current way often create very close points.
 # TODO: move single-objective prediction to a separate function, and implement multi-batch.
@@ -69,7 +70,10 @@ def main(setup_file: str, round: int):
     for i in par_dict:
         bounds[0].append(par_dict[i][0] - par_dict[i][1])
         bounds[1].append(par_dict[i][0] + par_dict[i][1])
-    new_x = predict_next(train_x, train_y, njobs, bounds)
+    if method == 'mobo' or method == 'sobo':
+        new_x = predict_next(train_x, train_y, njobs, bounds)
+    elif method == 'random':
+        new_x = create_random(njobs, bounds)
 
     # save new jobs from the new_x predicted by BO.
     file = parfile(result_path, setup_file)
@@ -85,6 +89,16 @@ def main(setup_file: str, round: int):
         parfile_name = 'parameter_thread' + str(i) + '_next.txt'
         file.save_file(parfile_name, '')
     return
+
+def create_random(njobs, bounds):
+    new_x = np.zeros((njobs, len(bounds[0])))
+    for i in range(njobs):
+        for j in range(len(bounds[0])):
+            high_lim = bounds[1][j]
+            low_lim = bounds[0][j]
+            new_x[i][j] = low_lim + random.uniform(0, 1) * (high_lim - low_lim)
+    return new_x
+
 
 def predict_next(train_x, train_y, n_predict, bounds):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
