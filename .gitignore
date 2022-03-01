@@ -4,7 +4,7 @@ ptycho/*.txt
 ptycho/ALTAS_submission/*.txt
 ptycho/ALTAS_submission/BO_test/*.txt
 ptycho/ALTAS_submission/*.mat
-ptycho/ALTAS_submission/BO_test/*.sub
+ptycho/ALTAS_submission/BO_test/*/*.sub
 ptycho/ALTAS_submission/BO_test/results/*
 ptycho/ALTAS_submission/BO_test/__pycache__/
 *.tiff

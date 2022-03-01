@@ -1,0 +1,31 @@
+#!/bin/bash
+#SBATCH --job-name=BaM_4-&THREAD_NUM&
+#SBATCH --nodes=1                      # number of nodes requested
+#SBATCH --ntasks=1                     # number of tasks to run in parallel
+#SBATCH --cpus-per-task=4             # number of CPUs required for each task
+#SBATCH --gres=gpu:2g.20gb:1
+#SBATCH --time=16:00:00                # Time limit hrs:min:sec
+#SBATCH --output=job_%j.log            # Standard output and error log
+
+pwd; hostname; date
+
+module load matlab/R2021a
+module load cuda/11.5
+
+THREAD=&THREAD_NUM&
+EXEPATH='/home/fs01/cz489/fold_slice/ptycho/'
+PARFILE='/home/fs01/cz489/ptychography/BO_optimization/multislice_BaM_4/parameter_thread&THREAD_NUM&.txt'
+COUNTER=0
+while true;
+do
+    matlab -nodisplay -nosplash -r "cd ~;\
+        cd $EXEPATH;\
+        prepare_data('$PARFILE');\
+        run_multislice_new('$PARFILE');\
+        exit"
+    python post_processing.py setup.txt &THREAD_NUM&
+    COUNTER=$[$COUNTER+1]
+    echo Thread number $THREAD now finished iteration $COUNTER
+done
+
+date
