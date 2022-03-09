@@ -28,7 +28,12 @@ function run_mixed_states(parfile)
     Nprobe = par.Nprobe; % # of probe modes
     variable_probe_modes = 0; % # of modes for variable probe correction
     grouping = 120; % group size. small -> better convergence but longer time/iteration
-    N_pos_corr = 0; % iteration number to start position correction. inf means no position correction
+    if isfield(par, 'probe_position_search')
+        N_pos_corr = par.probe_position_search;
+    else
+        N_pos_corr = 0;      % iteration number from which the engine will reconstruct probe positions, from iteration == probe_position_search, assume they have to match geometry model with error less than probe_position_error_max
+    end
+%     N_pos_corr = 0; % iteration number to start position correction. inf means no position correction
     initial_probe_file = strcat(par.result_dir, num2str(scan_number), '/init_probe.mat');
     
     %% %%%%%%%%%%%%%%%%%% initialize data parameters %%%%%%%%%%%%%%%%%%%%
@@ -228,7 +233,12 @@ function run_mixed_states(parfile)
                                            % * for DM is has no effect on convergence
     eng. probe_modes  = p.probe_modes;                % Number of coherent modes for probe
     eng. object_change_start = 1;          % Start updating object at this iteration number
-    eng. probe_change_start = 1;           % Start updating probe at this iteration number
+    if isfield(par, 'probe_change_start')
+        eng.probe_change_start = par.probe_change_start;
+    else
+        eng.probe_change_start = 1;           % Start updating probe at this iteration number
+    end
+%     eng. probe_change_start = 1;           % Start updating probe at this iteration number
     
     % regularizations
     eng. reg_mu = 0;                       % Regularization (smooting) constant ( reg_mu = 0 for no regularization)
