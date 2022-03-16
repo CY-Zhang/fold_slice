@@ -5,7 +5,7 @@
 #SBATCH --nodes=1                      # number of nodes requested
 #SBATCH --ntasks=1                     # number of tasks to run in parallel
 #SBATCH --cpus-per-task=32              # number of CPUs required for each task
-#SBATCH --gres=gpu:1                   # number of GPUs required
+#SBATCH --gres=gpu:2g.20gb:1                   # number of GPUs required
 #SBATCH --time=10:00:00                # Time limit hrs:min:sec
 #SBATCH --output=job_%j.log            # Standard output and error log
 
@@ -22,7 +22,7 @@ PARFILE='/home/fs01/cz489/ptychography/jobs/multislice_example/parameter_multisl
 matlab -nodisplay -nosplash -r "cd ~;\
 	cd $EXEPATH;\
 	prepare_data('$PARFILE');\
-	run_multislice('$PARFILE');\
+	run_multislice_new('$PARFILE');\
 	exit"
 
 date

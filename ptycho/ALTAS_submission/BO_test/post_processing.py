@@ -5,12 +5,12 @@ import scipy.io as sio
 import time
 from PIL import Image
 import shutil
+import threading
 
 # 12/21/21 added paramter option_mobo to determine how many objectives to return.
 # 12/21/21, cz, automatically determines the path to read the tif file, current scheme only works when there is only one folder under each scan number. Also auto determine the niter part of filename from setup file.
 # 12/23/21, cz, modify the roi_label and scan number part, read them from the setup file instead of hard coded as roi0_Ndp128 and 1.
 
-# TODO: ignore lines in the setup files that starts with #
 # TODO: keep the hdf5 files, remove init_probe and the whole folder named roi_label, could take long to generate the two files again for massive data size.
 def main(setup_file: str, thread_idx: int):
 
@@ -42,6 +42,7 @@ def main(setup_file: str, thread_idx: int):
             par_dict[par[0]] = 0
 
     # try to open and edit the train_X and trin_Y file
+    lock = threading.Lock()
     while True:
         try:
             train_x = np.load(result_path + 'train_X.npy')
@@ -50,6 +51,7 @@ def main(setup_file: str, thread_idx: int):
         except IOError:
             time.sleep(1)
 
+    lock.acquire()
     # check if the output file exist, if not, the reconstruction failed, remove the files, modify the input, then go back and run again. Keep next parameter in place, so that the BO process won't start.
     thread_path = result_path + 'thread_' + str(thread_idx) + '/' + scan_number + '/roi' + roi_label + '/'
     image_path = thread_path + next(os.walk(thread_path))[1][0]
@@ -72,6 +74,7 @@ def main(setup_file: str, thread_idx: int):
     train_y = np.concatenate((train_y, [new_y]), axis = 0)
     np.save(result_path + 'train_X.npy', train_x)
     np.save(result_path + 'train_Y.npy', train_y)
+    lock.release()
 
     # copy the final phase of the object and save the parameters in the filename
     filename = ""

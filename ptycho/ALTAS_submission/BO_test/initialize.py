@@ -9,6 +9,7 @@ import shutil
 # 12/10/21, cz, change the format of setup files to also include the parameters that are fixed, and read the values in class parfile.
 # 12/10/21, cz, add SOBO/MOBO selection to parameter file.
 # 12/22/21, cz add more parameters to control the grouping parameter, and determine whether to run from previous results.
+# 3/10/22, cz, ignore the setup file lines that start with #, and remove excess spaces at the end of each line.
 
 # TODO: add another parameter in the setup.txt to determine performing multislice/mixed-state
 # TODO: add running time to the setup file too.
@@ -38,6 +39,10 @@ def main(setup_file: str):
     count = 0  # counter to count the number of varying parameters.
     for i in range(4, len(lines)):
         par = lines[i].split(' ')
+        while par and par[-1] == " ":
+            par.pop()
+        if not par or par[0][0] == "#":
+            continue
         if len(par) == 3:
             count += 1
             par_dict[par[0]] = [float(par[1]), float(par[2][:-1])]

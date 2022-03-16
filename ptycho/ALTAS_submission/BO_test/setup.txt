@@ -1,23 +1,23 @@
-raw_data /home/fs01/cz489/ptychography/data/hk944/BaM_SC_data_ptycho_Titan_2021-12-23/06/scan_x120_y120_centered_flipx.mat
-result_path /home/fs01/cz489/ptychography/BO_optimization/multislice_BaM_3/results/
+raw_data /home/fs01/cz489/ptychography/data/ys755/20211107_Kraken_300kV_ABM14GSO_ptycho_test/03/scan_x60_y60_flipx_corner.mat
+result_path Z:/ptychography/BO_optimization/multislice_ABM14GSO_3_1/results_50iter_refine_+thickness_2/
 algorithm sobo
 njob 6
-alpha_max 17.250 3.0
-defocus -530.159 100.0
-rot_ang 90.663 10.0
+alpha_max 30.0 3.0
+defocus -65.1 100.0
+rot_ang -2.2 15.0
 Nlayers 5
-thickness 250
+thickness 166.9 50.0
 voltage 300
-rbf 31
-Nprobe 10
-N_scan_x 120
-N_scan_y 120
-scan_step_size 0.36
-Niter 100
-Niter_save_results 100
-CBED_size 256
-ADU 3262
-extra_print_info BaM
+rbf 34.16
+Nprobe 6
+N_scan_x 60
+N_scan_y 60
+scan_step_size 0.286
+Niter 50
+Niter_save_results 50
+CBED_size 124
+ADU 578
+extra_print_info ABM14GSO
 scan_number 1
 gpu_id 1
 roi_label 0_Ndp128
@@ -27,4 +27,3 @@ object_change_start 1
 grouping 32
 probe_position_search 1
 regularize_layers 1.0
-variable_probe false

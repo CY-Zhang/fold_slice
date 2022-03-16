@@ -24,7 +24,7 @@ import random
 # TODO: change beta of UCB into a variable, and 2 might be too much for parameter tuning.
 # TODO: think about what to use as the reference point for MOBO.
 # TODO, low priority: add a variable for the path of the parameter files. Currently, it is hard coded as the same path of the .py script.
-# Python > 3.7.0 and botorch 0.5 are required for the multi_objective functions.
+# Python > 3.7.0 and botorch 0.5 are required for the multi_objective functions. Currently torch 1.11.0 for CUDA 11.3 does not work with CUDA 11.4 on my desktop.
 def main(setup_file: str, round: int):
 
     # try to read the setup file
@@ -102,6 +102,7 @@ def create_random(njobs, bounds):
 
 def predict_next(train_x, train_y, n_predict, bounds):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = "cpu"
     train_x = torch.tensor(train_x[1:], device = device)
     train_y = torch.tensor(train_y[1:], device = device)
     bounds = torch.tensor(bounds, device = device)
@@ -181,4 +182,4 @@ def check_ready(n_thread: int):
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
-    # main('setup.txt', 0) # for debug use
+    # main('C:/Users/Chenyu-work/Documents/GitHub/fold_slice/ptycho/ALTAS_submission/BO_test/setup.txt', 0) # for debug use

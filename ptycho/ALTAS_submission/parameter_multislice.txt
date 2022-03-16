@@ -1,22 +1,36 @@
 # Example of parameter file for a multislice ptychography job
-raw_data /home/fs01/cz489/ptychography/data/sample_data_PrScO3_nopar.mat   # location of the raw data, the 4D array variable should be named 'cbed'
-result_dir /home/fs01/cz489/ptychography/jobs/multislice_example/          # directory to save the reconstruction results
+raw_data /home/fs01/cz489/ptychography/data/ys755/20211107_Kraken_300kV_ABM14GSO_ptycho_test/03/scan_x256_y256_flipx.mat
+result_dir /home/fs01/cz489/ptychography/jobs/multislice_ABM14GSO/results/
 roi_label 0_Ndp256  				# label used in the filename of the final output
 voltage 300  						# voltage in keV
-alpha_max 21.4  					# convergence angle in mrad
-rbf 26  							# size of the bright field disk in px
-defocus -200  						# defocus in Angstrom
-Nprobe 8							# Number of probe modes
-N_scan_x 64  						# number of raster points along x
-N_scan_y 64  						# number of raster points along y
-scan_step_size 0.41  				# scan step size in Angstrom
-Niter 100  						    # Number of iterations
-Niter_save_results 50  				# Number of iterations for each result saving
-ADU 151  						    # Conversion between intensity counts and number of electrons, electron = intensity / ADU
-rot_ang 0  						    # Rotation angle in CBED
-CBED_size 256						# Side length of each CBED pattern in px
-extra_print_info PSO  				# Extra info to be used for the saving filename
-scan_number 1 						# Index of the result directory
+alpha_max 30.111
+rbf 34.16  							# size of the bright field disk in px
+defocus -145.139
+Nprobe 6							# Number of probe modes
+N_scan_x 256  						# number of raster points along x
+N_scan_y 256  						# number of raster points along y
+scan_step_size 0.286  				# scan step size in Angstrom
+Niter 1000  						    # Number of iterations
+Niter_save_results 20  				# Number of iterations for each result saving
+ADU 578
+rot_ang -1.8
+CBED_size 124
+extra_print_info ABM14GSO  				# Extra info to be used for the saving filename
+scan_number 9 						# Index of the result directory
 gpu_id 1 						    # ID of GPU to run the code
-thickness 210						# Thickness of the sample
-Nlayers 21						    # Number of layers in the ptychography reconstruction
+thickness 127.838						# Thickness of the sample
+Nlayers 13						    # Number of layers in the ptychography reconstruction
+
+Optional parameters
+diff_pattern_blur 1                 # std of Gaussian blur applied to diffraction pattern
+probe_change_start 1               # iteration number to start fitting the probe
+probe_position_search 1
+object_change_start 1               # iteration number to start fitting object
+# init_layer_append_mode edge          # method of appending new layers
+grouping 32
+regularize_layers 0.5
+# CBED_crop 128
+variable_probe false
+# reg_mu 0.1
+# load_object_path /home/fs01/cz489/ptychography/jobs/multislice_BaM/results/1/roi0_Ndp256/MLs_L1_p8_g64_Ndp128_pc50_noModel_vp1_Ns28_dz5_reg0.5/Niter200.mat
+# load_probe_path /home/fs01/cz489/ptychography/jobs/multislice_BaM/results/6/init_probe.mat
