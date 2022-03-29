@@ -7,11 +7,10 @@ from PIL import Image
 import shutil
 import threading
 
-# 12/21/21 added paramter option_mobo to determine how many objectives to return.
+# 12/21/21, cz, added paramter option_mobo to determine how many objectives to return.
 # 12/21/21, cz, automatically determines the path to read the tif file, current scheme only works when there is only one folder under each scan number. Also auto determine the niter part of filename from setup file.
 # 12/23/21, cz, modify the roi_label and scan number part, read them from the setup file instead of hard coded as roi0_Ndp128 and 1.
-
-# TODO: keep the hdf5 files, remove init_probe and the whole folder named roi_label, could take long to generate the two files again for massive data size.
+# 3/25/22, cz,  tried keep the hdf5 files, need to modify the prepare_data script, as we want to renew the init_probe.mat, but keep the hdf5 file. Currently it would result in error if the hdf5 file exists.
 def main(setup_file: str, thread_idx: int):
 
     old_file = 'parameter_thread' + str(thread_idx) + '.txt'
@@ -96,7 +95,8 @@ def main(setup_file: str, thread_idx: int):
         time.sleep(1)
 
     # remove the result path after reading the x and y values
-    shutil.rmtree(result_path + 'thread_' + str(thread_idx) + '/' + scan_number + '/')
+    # shutil.rmtree(result_path + 'thread_' + str(thread_idx) + '/' + scan_number + '/')
+    shutil.rmtree(thread_path)
     shutil.rmtree(result_path + 'thread_' + str(thread_idx) + '/analysis/')
 
     # replace parameter files with next batch of parameter files.

@@ -12,7 +12,7 @@ import shutil
 # 3/10/22, cz, ignore the setup file lines that start with #, and remove excess spaces at the end of each line.
 
 # TODO: add another parameter in the setup.txt to determine performing multislice/mixed-state
-# TODO: add running time to the setup file too.
+# TODO: add running time to the setup file too. This is hard as bo_thread is the starting point to everything, and it will be impossible (?) to change the running time limit of bo_thread.sub after submission.
 # TODO: add parameters to control probe_search_start.
 # TODO: add job name to setup file and modify corresponding part of the submission file for each thread. Won't be able to change the job name on bo_thread.sub, as that is the entry point of everything.
 # TODO, low priority: randomize the seed for the random number generator when initialize parameters.

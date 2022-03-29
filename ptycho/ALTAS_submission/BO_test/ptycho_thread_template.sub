@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=BaM_4-&THREAD_NUM&
+#SBATCH --job-name=JOBNAME-&THREAD_NUM&
 #SBATCH --nodes=1                      # number of nodes requested
 #SBATCH --ntasks=1                     # number of tasks to run in parallel
 #SBATCH --cpus-per-task=4             # number of CPUs required for each task

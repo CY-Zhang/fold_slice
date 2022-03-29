@@ -42,8 +42,10 @@ function prepare_data(parfile)
     mkdir(save_dir)
     roi_label = par.roi_label;
     saveName = strcat('data_roi',roi_label,'_dp.hdf5');
-    h5create(strcat(save_dir,saveName), '/dp', size(dp),'ChunkSize',[size(dp,1), size(dp,2), 1],'Deflate',4)
-    h5write(strcat(save_dir,saveName), '/dp', dp)
+    if ~isfile(saveName)
+        h5create(strcat(save_dir,saveName), '/dp', size(dp),'ChunkSize',[size(dp,1), size(dp,2), 1],'Deflate',4)
+        h5write(strcat(save_dir,saveName), '/dp', dp)
+    end
     
     %% Step 5: prepare initial probe
     dx=1/Np_p(1)/dk; %% pixel size in real space (angstrom)
